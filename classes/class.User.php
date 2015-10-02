@@ -27,6 +27,19 @@ class User {
                 $this->find($user);
             }
     }
+
+    //UPDATE USER INFO
+
+    public function update($fields = array(), $id = null){
+        if(!$id && $this->isLoggedIn()){
+            $id = $this->data()->id;
+        }
+
+
+        if(!$this->_db->update('users', $id, $fields)){
+            throw new Exception('There was a problem updating.');
+        }
+    }
     //CREATE A USER
     public function create($fields){
         if(!$this->_db->insert('users', $fields)){
@@ -80,6 +93,18 @@ class User {
             }
         }
         return false;
+    }
+
+    //PLEASE CHECK FUNCTIONALITY FOR GROUP PERMISSIONS 22/23
+    public function hasPermission($key){
+        $group = $this->_db->get('groups', array('id', '=', $this->data()->group));
+
+       if($group->count()){
+            $permissions = json_decode($group->first()->permissions, true);
+            
+            return !empty($permissions[$key]);
+       }
+       return false;
     }
 
     public function exists(){
